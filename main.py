@@ -12,13 +12,10 @@ async def on_ready():
 @bot.event
 async def on_message(message : discord.Message):
     if not message.author.bot:
-        print('1')
         if "https://www.amazon" in message.content or "www.ebay" in message.content:
-            print('2')
             FOUND = False
             line = []
             for word in message.content.split(' '):
-                print(word)
                 if match := ebay_user(word):
                     line.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY_USERNAME}")
                     name = 'Ebay Link'
