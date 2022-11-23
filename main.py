@@ -12,43 +12,25 @@ async def on_ready():
 @bot.event
 async def on_message(message : discord.Message):
     if not message.author.bot:
-        if "www.ebay" in message.content:
-            if match := ebay_user(message.content):
+        if "https://www.amazon" in message.content or "www.ebay" in message.content:
+            FOUND = False
+            line = []
+            for word in message.content.split(' '):
+                if match := ebay_user(word):
+                    line.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY_USERNAME}")
+                    FOUND = True
+                elif match := ebay(word):
+                    line.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY}")
+                    FOUND = True
+                elif match := amazon(word):
+                    match = match[0] if match[0].startswith('https://') else f'https://{match[0]}'
+                    line.append(f"{match+AMAZON_CA if 'amazon.ca' in match else match+AMAZON}")
+                    FOUND = True
+                else:
+                    line.append(word)
+            if FOUND:
                 await message.delete()
-                new = []
-                words = message.content.split(' ')
-                for word in words:
-                    if 'www.ebay' in word:
-                        new.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY_USERNAME}")
-                    else:
-                        new.append(word)
-                new = ' '.join(new)
-                await message.channel.send(f"**{message.author.mention} has posted an eBay Profile:**\n{new}")
-
-            elif match := ebay(message.content):
-                await message.delete()
-                new = []
-                words = message.content.split(' ')
-                for word in words:
-                    if 'www.ebay' in word:
-                        new.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY}")
-                    else:
-                        new.append(word)
-                new = ' '.join(new)
-                await message.channel.send(f"**{message.author.mention} has posted an eBay link:**\n{new}")
-            
-        elif "https://www.amazon" in message.content:
-            if match := amazon(message.content):
-                await message.delete()
-                new = []
-                words = message.content.split(' ')
-                for word in words:
-                    if 'www.amazon' in word:
-                        match = match[0] if match[0].startswith('https://') else f'https://{match[0]}'
-                        new.append(f"{match+AMAZON_CA if 'amazon.ca' in match else match+AMAZON}")
-                    else:
-                        new.append(word)
-                new = ' '.join(new)
+                new = ' '.join(line)
                 await message.channel.send(f"**{message.author.mention} has posted an Amazon link:**\n{new}")
 
 def ebay(input_text):
