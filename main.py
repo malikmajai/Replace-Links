@@ -12,26 +12,32 @@ async def on_ready():
 @bot.event
 async def on_message(message : discord.Message):
     if not message.author.bot:
+        print('1')
         if "https://www.amazon" in message.content or "www.ebay" in message.content:
+            print('2')
             FOUND = False
             line = []
             for word in message.content.split(' '):
+                print(word)
                 if match := ebay_user(word):
                     line.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY_USERNAME}")
+                    name = 'Ebay Link'
                     FOUND = True
                 elif match := ebay(word):
                     line.append(f"{match[0] if match[0].startswith('https://') else 'https://'+match[0]+EBAY}")
+                    name = 'Ebay Link'
                     FOUND = True
                 elif match := amazon(word):
                     match = match[0] if match[0].startswith('https://') else f'https://{match[0]}'
                     line.append(f"{match+AMAZON_CA if 'amazon.ca' in match else match+AMAZON}")
+                    name = 'Amazon Link'
                     FOUND = True
                 else:
                     line.append(word)
             if FOUND:
                 await message.delete()
                 new = ' '.join(line)
-                await message.channel.send(f"**{message.author.mention} has posted an Amazon link:**\n{new}")
+                await message.channel.send(f"**{message.author.mention} has posted an {name}:**\n{new}")
 
 def ebay(input_text):
     pattern = re.compile(r"www.ebay.+([a-z]+)+/itm/+([0-9]+)")
